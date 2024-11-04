@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRoutes from './presentation/routes/authRoutes';
+import requisitionRoutes from './presentation/routes/requisitionRoutes';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/requisitions', requisitionRoutes);
 
 // Basic route for testing
 app.get('/health', (req: Request, res: Response) => {
