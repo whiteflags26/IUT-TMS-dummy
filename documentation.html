@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requisition System API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .endpoint {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Requisition System API Documentation</h1>
+
+    <h2>Authentication API</h2>
+
+    <h3>1. Register a New User</h3>
+    <div class="endpoint">Endpoint: POST /api/auth/register</div>
+    <div>Description: Registers a new user in the system.</div>
+    <h4>Request Body:</h4>
+    <pre>
+{
+    "username": "string",
+    "email": "string",
+    "password": "string",
+    "role": "string",  // Roles can be 'ADMIN', 'FACULTY', 'HOD', 'CHAIRMAN', 'VC'
+    "department": "string"
+}
+    </pre>
+    <h4>Role Descriptions:</h4>
+    <ul>
+        <li><strong>ADMIN:</strong> Has full access to manage users and requisitions.</li>
+        <li><strong>FACULTY:</strong> Can create and view requisitions.</li>
+        <li><strong>HOD:</strong> Can approve requisitions created by faculty members.</li>
+        <li><strong>CHAIRMAN:</strong> Can approve or reject requisitions.</li>
+        <li><strong>VC:</strong> Has the highest level of authority to approve requisitions.</li>
+    </ul>
+    <h4>Example Request:</h4>
+    <pre>
+curl -X POST http://localhost:3000/api/auth/register \
+-H "Content-Type: application/json" \
+-d '{
+    "username": "adminuser",
+    "email": "admin@iut.ac.bd",
+    "password": "admin123",
+    "role": "ADMIN",
+    "department": "ADMIN"
+}'
+    </pre>
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "user": {
+            "id": 1,
+            "username": "adminuser",
+            "email": "admin@iut.ac.bd",
+            "role": "ADMIN",
+            "department": "ADMIN"
+        },
+        "token": "eyJhbGciOiJIUzI1NiIs..."
+    }
+}
+    </pre>
+    <h4>Error Response:</h4>
+    <pre>
+{
+    "status": "error",
+    "message": "User already exists"
+}
+    </pre>
+
+    <h3>2. Login User</h3>
+    <div class="endpoint">Endpoint: POST /api/auth/login</div>
+    <div>Description: Authenticates a user and returns a JWT token.</div>
+    <h4>Request Body:</h4>
+    <pre>
+{
+    "email": "string",
+    "password": "string"
+}
+    </pre>
+    <h4>Example Request:</h4>
+    <pre>
+curl -X POST http://localhost:3000/api/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+    "email": "admin@iut.ac.bd",
+    "password": "admin123"
+}'
+    </pre>
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "user": {
+            "id": 1,
+            "username": "adminuser",
+            "email": "admin@iut.ac.bd",
+            "role": "ADMIN",
+            "department": "ADMIN"
+        },
+        "token": "eyJhbGciOiJIUzI1NiIs..."
+    }
+}
+    </pre>
+    <h4>Error Response:</h4>
+    <pre>
+{
+    "status": "error",
+    "message": "Invalid email or password"
+}
+    </pre>
+
+    <h2>Requisition API</h2>
+
+    <h3>1. Create a New Requisition</h3>
+    <div class="endpoint">Endpoint: POST /api/requisitions</div>
+    <div>Description: Creates a new requisition.</div>
+    <div>Roles Allowed: FACULTY, HOD, CHAIRMAN, VC</div>
+    <h4>Request Body:</h4>
+    <pre>
+{
+    "userId": "number",
+    "purpose": "string",
+    "destination": "string",
+    "dateRequired": "date",
+    "returnDate": "date",
+    "numberOfPassengers": "number",
+    "contactNumber": "string"
+}
+    </pre>
+    <h4>Example Request:</h4>
+    <pre>
+curl -X POST http://localhost:3000/api/requisitions \
+-H "Authorization: Bearer &lt;token&gt;" \
+-H "Content-Type: application/json" \
+-d '{
+    "userId": 2,
+    "purpose": "Field Trip to Science Museum",
+    "destination": "Downtown Science Museum",
+    "dateRequired": "2024-11-10T10:00:00Z",
+    "returnDate": "2024-11-10T15:00:00Z",
+    "numberOfPassengers": 25,
+    "contactNumber": "123-456-7890"
+}'
+    </pre>
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "id": 1,
+        "userId": 2,
+        "purpose": "Field Trip to Science Museum",
+        "destination": "Downtown Science Museum",
+        "dateRequired": "2024-11-10T10:00:00Z",
+        "returnDate": "2024-11-10T15:00:00Z",
+        "numberOfPassengers": 25,
+        "contactNumber": "123-456-7890",
+        "status": "PENDING"
+    }
+}
+    </pre>
+
+    <h3>2. Get a Specific Requisition</h3>
+    <div class="endpoint">Endpoint: GET /api/requisitions/{id}</div>
+    <div>Description: Retrieves a specific requisition by its ID.</div>
+    <div>Roles Allowed: FACULTY, HOD, CHAIRMAN, VC, ADMIN</div>
+    <h4>Example Request:</h4>
+    <pre>
+curl -X GET http://localhost:3000/api/requisitions/1 \
+-H "Authorization: Bearer &lt;token&gt;"
+    </pre>
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "id": 1,
+        "userId": 2,
+        "purpose": "Field Trip to Science Museum",
+        "status": "PENDING"
+    }
+}
+    </pre>
+
+    <h3>3. Update a Requisition</h3>
+    <div class="endpoint">Endpoint: PUT /api/requisitions/{id}</div>
+    <div>Description: Updates an existing requisition.</div>
+    <div>Roles Allowed: FACULTY, HOD, CHAIRMAN, VC, ADMIN</div>
+    <h4>Request Body:</h4>
+    <pre>
+{
+    "purpose": "string",
+    "destination": "string",
+    "dateRequired": "date",
+    "returnDate": "date",
+    "numberOfPassengers": "number",
+    "contactNumber": "string",
+    "status": "string", // Can be 'PENDING', 'HOD_APPROVED', 'CHAIRMAN_APPROVED', 'VC_APPROVED', 'REJECTED', 'COMPLETED'
+    "vehicleId": "number",
+    "driverId": "number",
+    "notes": "string",
+    "rejectionReason": "string"
+}
+    </pre>
+    <h4>Example Request:</h4>
+    <pre>
+curl -X PUT http://localhost:3000/api/requisitions/1 \
+-H "Authorization: Bearer &lt;token&gt;" \
+-H "Content-Type: application/json" \
+-d '{
+    "status": "APPROVED",
+    "notes": "Approved by the Head of Department."
+}'
+    </pre>
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "id": 1,
+        "status": "APPROVED",
+        "notes": "Approved by the Head of Department."
+    }
+}
+    </pre>
+
+    <h3>4. Delete a Requisition</h3>
+    <div class="endpoint">Endpoint: DELETE /api/requisitions/{id}</div>
+    <div>Description: Deletes a requisition by its ID.</div>
+    <div>Roles Allowed: CHAIRMAN, ADMIN</div>
+    <h4>Example Request:</h4>
+    <pre>
+curl -X DELETE http://localhost:3000/api/requisitions/4 \
+-H "Authorization: Bearer &lt;token&gt;"
+    </pre>
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "message": "Requisition deleted"
+}
+    </pre>
+
+</body>
+</html>
+
