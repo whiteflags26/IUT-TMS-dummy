@@ -5,14 +5,11 @@ import { auth, authorize } from '../middlewares/auth';
 const router = Router();
 const requisitionController = new RequisitionController();
 
-router.post('/', auth, authorize(['FACULTY', 'HOD', 'CHAIRMAN', 'VC']), (req, res) => 
+router.get('/', auth, authorize(['FACULTY', 'HOD', 'CHAIRMAN', 'VC', 'ADMIN']), (req, res) => 
+    requisitionController.searchRequisitions(req, res));
+
+router.post('/', auth, authorize(['FACULTY', 'HOD', 'CHAIRMAN', 'VC', 'ADMIN']), (req, res) => 
     requisitionController.createRequisition(req, res));
-
-router.get('/:id', auth, authorize(['FACULTY', 'HOD', 'CHAIRMAN', 'VC', 'ADMIN']), (req, res) => 
-    requisitionController.getRequisitionById(req, res));
-
-router.get('/user/:userId', auth, authorize(['FACULTY', 'HOD', 'CHAIRMAN', 'VC', 'ADMIN']), (req, res) => 
-    requisitionController.getRequisitionsByUserId(req, res));
 
 router.put('/:id', auth, authorize(['FACULTY', 'HOD', 'CHAIRMAN', 'VC', 'ADMIN']), (req, res) => 
     requisitionController.updateRequisition(req, res));

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRoutes from './presentation/routes/authRoutes';
 import requisitionRoutes from './presentation/routes/requisitionRoutes';
+import qs from 'qs';
 
 dotenv.config();
 
@@ -13,6 +14,12 @@ const app: Express = express();
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
+
+// Custom middleware to parse query strings using qs
+app.use((req: Request, res: Response, next: NextFunction) => {
+  req.query = qs.parse(qs.stringify(req.query));
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

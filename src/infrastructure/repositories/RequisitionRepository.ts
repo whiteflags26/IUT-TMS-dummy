@@ -109,4 +109,101 @@ export class RequisitionRepository implements IRequisitionRepository {
     const { rowCount } = await pool.query('DELETE FROM requisitions WHERE id = $1', [id]);
     return rowCount != null && rowCount > 0;
   }
+
+  async search(
+    userId?: number,
+    purpose?: string,
+    destination?: string,
+    dateRequired?: { from?: Date; to?: Date },
+    returnDate?: { from?: Date; to?: Date },
+    numberOfPassengers?: { from?: number; to?: number },
+    status?: 'PENDING' | 'HOD_APPROVED' | 'CHAIRMAN_APPROVED' | 'VC_APPROVED' | 'REJECTED' | 'COMPLETED',
+    contactNumber?: string,
+    vehicleId?: number,
+    driverId?: number,
+    sort?: { field: keyof Requisition; direction: 'asc' | 'desc' },
+    page?: number,
+    limit?: number
+): Promise<{ requisitions: Requisition[]; totalCount: number }> {
+    
+    let query = 'SELECT * FROM requisitions WHERE 1 = 1';
+    const params: any[] = [];
+    let paramIndex = 1; // Start with the first parameter index
+
+    if (userId !== undefined) {
+        query += ` AND user_id = $${paramIndex++}`; // Increment paramIndex after use
+        params.push(userId);
+    }
+    if (purpose) {
+        query += ` AND purpose LIKE $${paramIndex++}`;
+        params.push(`%${purpose}%`);
+    }
+    if (destination) {
+        query += ` AND destination LIKE $${paramIndex++}`;
+        params.push(`%${destination}%`);
+    }
+    if (dateRequired) {
+        if (dateRequired.from) {
+            query += ` AND date_required >= $${paramIndex++}`;
+            params.push(dateRequired.from);
+        }
+        if (dateRequired.to) {
+            query += ` AND date_required <= $${paramIndex++}`;
+            params.push(dateRequired.to);
+        }
+    }
+    if (returnDate) {
+        if (returnDate.from) {
+            query += ` AND return_date >= $${paramIndex++}`;
+            params.push(returnDate.from);
+        }
+        if (returnDate.to) {
+            query += ` AND return_date <= $${paramIndex++}`;
+            params.push(returnDate.to);
+        }
+    }
+    if (numberOfPassengers) {
+        if (numberOfPassengers.from) {
+            query += ` AND number_of_passengers >= $${paramIndex++}`;
+            params.push(numberOfPassengers.from);
+        }
+        if (numberOfPassengers.to) {
+            query += ` AND number_of_passengers <= $${paramIndex++}`;
+            params.push(numberOfPassengers.to);
+        }
+    }
+    if (status) {
+        query += ` AND status = $${paramIndex++}`;
+        params.push(status);
+    }
+    if (contactNumber) {
+        query += ` AND contact_number LIKE $${paramIndex++}`;
+        params.push(`%${contactNumber}%`);
+    }
+    if (vehicleId !== undefined) {
+        query += ` AND vehicle_id = $${paramIndex++}`;
+        params.push(vehicleId);
+    }
+    if (driverId !== undefined) {
+        query += ` AND driver_id = $${paramIndex++}`;
+        params.push(driverId);
+    }
+
+    if (sort) {
+        query += ` ORDER BY ${sort.field} ${sort.direction}`;
+    }
+
+    if (page !== undefined && limit !== undefined) {
+        query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+        params.push(limit);
+        params.push((page - 1) * limit);
+    }
+
+    // console.log(query);
+    // console.log(params);
+    const { rows } = await pool.query(query, params);
+    const totalCount = (await pool.query('SELECT COUNT(*) FROM requisitions')).rows[0].count;
+
+    return { requisitions: rows, totalCount: parseInt(totalCount, 10) };
+  }
 }
