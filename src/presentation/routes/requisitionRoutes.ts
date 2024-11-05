@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { RequisitionController } from '../controllers/RequisitionController';
-import { auth, authorize } from '../middlewares/auth';
+import { auth, authorize } from '../middlewares/authorizer';
 
 const router = Router();
 const requisitionController = new RequisitionController();
