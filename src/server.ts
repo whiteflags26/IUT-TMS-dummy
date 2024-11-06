@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRoutes from './presentation/routes/authRoutes';
 import requisitionRoutes from './presentation/routes/requisitionRoutes';
+import userRoutes from './presentation/routes/userRoutes';
 import qs from 'qs';
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/requisitions', requisitionRoutes);
+app.use('/api/user', userRoutes);
 
 // Basic route for testing
 app.get('/health', (req: Request, res: Response) => {

@@ -6,4 +6,5 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   update(id: number, user: Partial<User>): Promise<User>;
   delete(id: number): Promise<boolean>;
+  findAll(): Promise<Partial<User>[]>;
 }

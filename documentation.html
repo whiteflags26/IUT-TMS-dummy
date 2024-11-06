@@ -345,6 +345,223 @@ curl -X GET "http://localhost:3000/api/requisitions/search?destination=Downtown%
 }
 </pre>
 
+<h1>User Management API Documentation</h1>
+    <div class="note">
+        <strong>Note:</strong> All endpoints require authentication and ADMIN role. Include the JWT token in the Authorization header:
+        <pre>Authorization: Bearer your_jwt_token_here</pre>
+    </div>
+
+    <h3>1. Get All Users</h3>
+    <div class="endpoint"><span class="method get">GET</span>/api/users</div>
+    <div>Description: Retrieves a list of all users in the system (excluding passwords).</div>
+    
+    <h4>Example Request:</h4>
+    <pre>
+curl -X GET http://localhost:3000/api/users \
+-H "Authorization: Bearer your_jwt_token_here"
+    </pre>
+    
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": [
+        {
+            "id": 1,
+            "username": "adminuser",
+            "email": "admin@example.com",
+            "role": "ADMIN",
+            "department": "ADMIN",
+            "contact_number": "1234567890",
+            "created_at": "2024-11-06T10:00:00.000Z",
+            "updated_at": "2024-11-06T10:00:00.000Z"
+        },
+        // ... more users
+    ]
+}
+    </pre>
+
+    <h3>2. Get User by ID</h3>
+    <div class="endpoint"><span class="method get">GET</span>/api/users/:id</div>
+    <div>Description: Retrieves a specific user by their ID.</div>
+    
+    <h4>Example Request:</h4>
+    <pre>
+curl -X GET http://localhost:3000/api/users/2 \
+-H "Authorization: Bearer your_jwt_token_here"
+    </pre>
+    
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "id": 2,
+        "username": "faculty1",
+        "email": "faculty1@example.com",
+        "role": "FACULTY",
+        "department": "CSE",
+        "contact_number": "1234567890",
+        "created_at": "2024-11-06T10:00:00.000Z",
+        "updated_at": "2024-11-06T10:00:00.000Z"
+    }
+}
+    </pre>
+
+    <h3>3. Create New User</h3>
+    <div class="endpoint"><span class="method post">POST</span>/api/users</div>
+    <div>Description: Creates a new user in the system.</div>
+    
+    <h4>Request Body:</h4>
+    <pre>
+{
+    "username": "string",
+    "email": "string",
+    "password": "string",  // Must meet password validation requirements
+    "role": "FACULTY" | "HOD" | "CHAIRMAN" | "VC" | "ADMIN",
+    "department": "string",
+    "contact_number": "string"
+}
+    </pre>
+
+    <div class="note">
+        <strong>Password Requirements:</strong>
+        <ul>
+            <li>Minimum 8 characters</li>
+            <li>At least one uppercase letter</li>
+            <li>At least one lowercase letter</li>
+            <li>At least one number</li>
+            <li>At least one special character</li>
+        </ul>
+    </div>
+    
+    <h4>Example Request:</h4>
+    <pre>
+curl -X POST http://localhost:3000/api/users \
+-H "Authorization: Bearer your_jwt_token_here" \
+-H "Content-Type: application/json" \
+-d '{
+    "username": "newuser",
+    "email": "newuser@example.com",
+    "password": "Password123!",
+    "role": "FACULTY",
+    "department": "CSE",
+    "contact_number": "1234567890"
+}'
+    </pre>
+    
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "id": 3,
+        "username": "newuser",
+        "email": "newuser@example.com",
+        "role": "FACULTY",
+        "department": "CSE",
+        "contact_number": "1234567890",
+        "created_at": "2024-11-06T10:00:00.000Z",
+        "updated_at": "2024-11-06T10:00:00.000Z"
+    }
+}
+    </pre>
+
+    <h3>4. Update User</h3>
+    <div class="endpoint"><span class="method put">PUT</span>/api/users/:id</div>
+    <div>Description: Updates an existing user's information.</div>
+    
+    <h4>Request Body:</h4>
+    <pre>
+{
+    "username": "string",  // optional
+    "email": "string",    // optional
+    "password": "string", // optional, must meet validation requirements if provided
+    "role": "string",     // optional
+    "department": "string", // optional
+    "contact_number": "string" // optional
+}
+    </pre>
+    
+    <h4>Example Request:</h4>
+    <pre>
+curl -X PUT http://localhost:3000/api/users/2 \
+-H "Authorization: Bearer your_jwt_token_here" \
+-H "Content-Type: application/json" \
+-d '{
+    "department": "ECE",
+    "contact_number": "9876543210"
+}'
+    </pre>
+    
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "data": {
+        "id": 2,
+        "username": "faculty1",
+        "email": "faculty1@example.com",
+        "role": "FACULTY",
+        "department": "ECE",
+        "contact_number": "9876543210",
+        "created_at": "2024-11-06T10:00:00.000Z",
+        "updated_at": "2024-11-06T10:30:00.000Z"
+    }
+}
+    </pre>
+
+    <h3>5. Delete User</h3>
+    <div class="endpoint"><span class="method delete">DELETE</span>/api/users/:id</div>
+    <div>Description: Deletes a user from the system.</div>
+    
+    <h4>Example Request:</h4>
+    <pre>
+curl -X DELETE http://localhost:3000/api/users/2 \
+-H "Authorization: Bearer your_jwt_token_here"
+    </pre>
+    
+    <h4>Successful Response:</h4>
+    <pre>
+{
+    "status": "success",
+    "message": "User deleted successfully"
+}
+    </pre>
+
+    <h4>Common Error Responses:</h4>
+    <pre>
+// Authentication Error
+{
+    "status": "error",
+    "message": "Unauthorized access"
+}
+
+// Authorization Error
+{
+    "status": "error",
+    "message": "Permission denied"
+}
+
+// Validation Error
+{
+    "status": "error",
+    "message": "Invalid password format"
+}
+
+// Resource Not Found
+{
+    "status": "error",
+    "message": "User not found"
+}
+
+// Database Error
+{
+    "status": "error",
+    "message": "Internal server error"
+}
+    </pre>
+
 </body>
 </html>
 

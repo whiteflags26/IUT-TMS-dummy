@@ -34,4 +34,21 @@ export class UserRepository implements IUserRepository {
     return rowCount != null && rowCount > 0;
     //return rowCount > 0;
   }
+
+  async findAll(): Promise<Partial<User>[]> {
+    const { rows } = await pool.query(
+      `SELECT 
+        id, 
+        username, 
+        email, 
+        role, 
+        department, 
+        contact_number, 
+        created_at, 
+        updated_at 
+      FROM users
+      ORDER BY created_at DESC`
+    );
+    return rows;
+  }
 }

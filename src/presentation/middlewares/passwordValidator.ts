@@ -13,5 +13,12 @@ export const passwordValidator: RequestHandler = (req, res, next) => {
         return;
     }
 
+    if(password.length < 8) {
+        res.status(400).json({
+            message: "Password must have at least 8 characters."
+        });
+        return;
+    }
+
     next();
 };
