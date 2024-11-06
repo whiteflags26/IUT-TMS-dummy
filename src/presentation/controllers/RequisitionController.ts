@@ -123,4 +123,100 @@ export class RequisitionController {
       res.status(500).json({ message: (error as Error).message });
     }
   }
+
+  async assignVehicleAndDriver(req: Request, res: Response): Promise<void> {
+    try {
+      const { vehicleId, driverId } = req.body;
+      const requisitionId = Number(req.params.id);
+
+      if (!vehicleId || !driverId) {
+        res.status(400).json({ message: 'Vehicle ID and Driver ID are required' });
+        return;
+      }
+
+      const requisition = await this.requisitionService.assignVehicleAndDriver(
+        requisitionId,
+        vehicleId,
+        driverId
+      );
+      res.json(requisition);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  async approveByHOD(req: Request, res: Response): Promise<void> {
+    try {
+      const requisitionId = Number(req.params.id);
+      const requisition = await this.requisitionService.approveByHOD(requisitionId);
+      res.json(requisition);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  async approveByChairman(req: Request, res: Response): Promise<void> {
+    try {
+      console.log(`approving by chairman controller`);
+      const requisitionId = Number(req.params.id);
+      const requisition = await this.requisitionService.approveByChairman(requisitionId);
+      res.json(requisition);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  async approveByVC(req: Request, res: Response): Promise<void> {
+    try {
+      const requisitionId = Number(req.params.id);
+      const requisition = await this.requisitionService.approveByVC(requisitionId);
+      res.json(requisition);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  async rejectRequisition(req: Request, res: Response): Promise<void> {
+    try {
+      const requisitionId = Number(req.params.id);
+      const { rejectionReason } = req.body;
+
+      if (!rejectionReason) {
+        res.status(400).json({ message: 'Rejection reason is required' });
+        return;
+      }
+
+      const requisition = await this.requisitionService.rejectRequisition(
+        requisitionId,
+        rejectionReason
+      );
+      res.json(requisition);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  async updateRequisitionData(req: Request, res: Response): Promise<void> {
+    try {
+      const requisitionId = Number(req.params.id);
+      const updateData = req.body;
+
+      // Validate required fields in the request body
+      const requiredFields = ['purpose', 'destination', 'dateRequired', 'numberOfPassengers', 'contactNumber'];
+      const missingFields = requiredFields.filter(field => updateData[field] === undefined);
+
+      if (missingFields.length > 0) {
+        res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
+        return;
+      }
+
+      const requisition = await this.requisitionService.updateRequisitionData(
+        requisitionId,
+        updateData
+      );
+      res.json(requisition);
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
 }
